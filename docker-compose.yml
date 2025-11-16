@@ -40,16 +40,14 @@ services:
     build: https://github.com/mattdeba/weight-tracker-api.git
     container_name: nestjs-back
     expose:
-      - "3000"  # exposé sur le réseau docker uniquement
+      - "3000"
     environment:
-      # Config base de données
       DATABASE_HOST: db
       DATABASE_PORT: 5432
       DATABASE_USER: postgres
       DATABASE_PASSWORD: postgres
       DATABASE_NAME: myapp
 
-      # Config nginx-proxy / Let's Encrypt
       VIRTUAL_HOST: weight-tracker-api.dockbarge.cloud
       LETSENCRYPT_HOST: weight-tracker-api.dockbarge.cloud
       VIRTUAL_PORT: 3000
@@ -70,9 +68,6 @@ services:
       POSTGRES_DB: myapp
     volumes:
       - db_data:/var/lib/postgresql/data
-    # Pas besoin d'exposer le port vers l'extérieur
-    # ports:
-    #   - "5432:5432"
     networks:
       - app
 
