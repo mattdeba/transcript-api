@@ -15,6 +15,8 @@ services:
     labels:
       - com.github.nginx-proxy.nginx=true
     restart: unless-stopped
+    networks:
+      - proxy
 
   acme-companion:
     image: nginxproxy/acme-companion:latest
@@ -31,14 +33,52 @@ services:
     depends_on:
       - nginx-proxy
     restart: unless-stopped
+    networks:
+      - proxy
 
-  fastapi_app:
-    build: .
-    container_name: fastapi_app
+  backend:
+    build: https://github.com/mattdeba/weight-tracker-api.git
+    container_name: nestjs-back
     expose:
-      - "8000"
+      - "3000"  # vu par nginx-proxy, pas exposé à l'extérieur
     environment:
-      - VIRTUAL_HOST=dockbarge.cloud
-      - VIRTUAL_PORT=8000
-      - LETSENCRYPT_HOST=dockbarge.cloud
+      # config DB (comme dans ton premier fichier)
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_NAME: myapp
+
+      # config nginx-proxy / Let's Encrypt
+      VIRTUAL_HOST: dockbarge.cloud        # ou api.dockbarge.cloud si tu préfères un sous-domaine
+      VIRTUAL_PORT: 3000
+      LETSENCRYPT_HOST: dockbarge.cloud
+    depends_on:
+      - db
+    restart: unless-stopped
+    networks:
+      - proxy
+      - app
+
+  db:
+    image: postgres:15-alpine
+    container_name: postgres-db
     restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: myapp
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    # pas besoin d'exposer le port vers l'extérieur
+    # ports:
+    #   - "5432:5432"
+    networks:
+      - app
+
+networks:
+  proxy:
+  app:
+
+volumes:
+  db_data:
