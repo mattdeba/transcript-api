@@ -40,19 +40,19 @@ services:
     build: https://github.com/mattdeba/weight-tracker-api.git
     container_name: nestjs-back
     expose:
-      - "3000"  # vu par nginx-proxy, pas exposé à l'extérieur
+      - "3000"  # exposé sur le réseau docker uniquement
     environment:
-      # config DB (comme dans ton premier fichier)
+      # Config base de données
       DATABASE_HOST: db
       DATABASE_PORT: 5432
       DATABASE_USER: postgres
       DATABASE_PASSWORD: postgres
       DATABASE_NAME: myapp
 
-      # config nginx-proxy / Let's Encrypt
-      VIRTUAL_HOST: dockbarge.cloud        # ou api.dockbarge.cloud si tu préfères un sous-domaine
+      # Config nginx-proxy / Let's Encrypt
+      VIRTUAL_HOST: weight-tracker-api.dockbarge.cloud
+      LETSENCRYPT_HOST: weight-tracker-api.dockbarge.cloud
       VIRTUAL_PORT: 3000
-      LETSENCRYPT_HOST: dockbarge.cloud
     depends_on:
       - db
     restart: unless-stopped
@@ -70,7 +70,7 @@ services:
       POSTGRES_DB: myapp
     volumes:
       - db_data:/var/lib/postgresql/data
-    # pas besoin d'exposer le port vers l'extérieur
+    # Pas besoin d'exposer le port vers l'extérieur
     # ports:
     #   - "5432:5432"
     networks:
