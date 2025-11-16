@@ -48,8 +48,8 @@ services:
       DATABASE_PASSWORD: postgres
       DATABASE_NAME: myapp
 
-      VIRTUAL_HOST: api.dockbarge.cloud
-      LETSENCRYPT_HOST: api.dockbarge.cloud
+      VIRTUAL_HOST: dockbarge.cloud
+      LETSENCRYPT_HOST: dockbarge.cloud
       VIRTUAL_PORT: 3000
     depends_on:
       - db
